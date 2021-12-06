@@ -190,9 +190,18 @@
 
                 let data = JSON.parse(tr.dataset.row)
 
-                console.log(data.id);
+                if (confirm(`Deseja realmente excluir o menu ${data.title}?`)) {
 
-            })
+                    fetch(`/admin/menus/${data.id}`, {
+                        method: 'DELETE'
+                    }).then(response.json()).then(json => {
+                        window.location.reload()
+                    })
+
+                }
+
+                
+            }) 
 
         })
 
