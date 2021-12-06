@@ -44,7 +44,7 @@
                   <td><%= row.title %></td>
                   <td><%= row.description %></td>
                   <td><%= row.price %></td>
-                  <td><button type="button" class="btn btn-xs btn-info btn-update" data-toggle="modal" data-target="#modal-update"><i
+                  <td><button type="button" class="btn btn-xs btn-info btn-update"><i
                         class="fa fa-pencil"></i> Editar</button>&nbsp;<button type="button" class="btn btn-xs btn-danger btn-delete"><i
                         class="fa fa-trash"></i> Excluir</button></td>
                 </tr>
@@ -63,7 +63,7 @@
     <div class="modal fade" id="modal-create">
       <div class="modal-dialog">
         <div class="modal-content" style="border-top: 3px solid #00a65a;">
-          <form method="post">
+          <form method="post" action="/admin/menus">
             <div class="modal-header">
               <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
@@ -103,7 +103,7 @@
     <div class="modal fade" id="modal-update">
       <div class="modal-dialog">
         <div class="modal-content" style="border-top: 3px solid #00c0ef;">
-          <form method="post">
+          <form method="post" action="/admin/menus">
             <input type="hidden" name="id">
             <div class="modal-header">
               <button type="button" class="close" data-dismiss="modal" aria-label="Close">
@@ -143,26 +143,92 @@
 
     <!-- Main Footer -->
     <%- include('includes/footer') -%>
+    
+    <script src="/js/hcode-filereader.js"></script>
+    <script src="/js/hcode-formsave.js"></script>
 
     <script>
 
+        new HcodeFileReader('#modal-create [type=file]', '#modal-create img')
+        new HcodeFileReader('#modal-update [type=file]', '#modal-update img')
+
         let formCreate = document.querySelector("#modal-create form")
 
-        formCreate.addEventListener('submit', e=>{
+        formCreate.save().then(json=>{
 
-            e.preventDefault()
+            window.location.reload()
 
-            let formCreateData = new FormData(formCreate)
+        }).catch(err=>{
 
-            fetch("/admin/menus",{
-                method:"POST",
-                body:formCreateData
-            }).then(response => response.json()).then(json =>{
+            console.log(err);
 
-                console.log('json ', json);
+        })
+
+        let formUpdate = document.querySelector('#modal-update form')
+
+        formUpdate.save().then(json=>{
+
+            window.location.reload()
+
+        }).catch(err=>{
+
+            console.log(err);
+
+        })
+
+        let spread1 = [...document.querySelectorAll('.btn-delete')]
+
+        spread1.forEach(btn =>{
+
+            btn.addEventListener('click', e=>{
+
+                let tr = e.composedPath().find(el=>{
+
+                    return(el.tagName.toUpperCase() == 'TR')
+
+                })
+
+                let data = JSON.parse(tr.dataset.row)
+
+                console.log(data.id);
 
             })
 
         })
+
+        let spread2 = [...document.querySelectorAll('.btn-update')]
+
+        spread2.forEach(btn => {
+
+            btn.addEventListener('click', e=>{
+
+                let tr = e.composedPath().find(el=>{
+
+                    return(el.tagName.toUpperCase() == 'TR')
+
+                })
+
+                let data = JSON.parse(tr.dataset.row)
+
+                for(let name in data){
+
+                    switch (name) {
+                        case 'photo':
+                            formUpdate.querySelector('img').src = '/'+data[name]
+                            break;
+                    
+                        default:
+                            let input = formUpdate.querySelector(`[name=${name}]`)
+                            if(input) input.value = data[name]
+                            break;
+                    }
+                    
+                }
+
+                $('#modal-update').modal('show')
+
+            })
+            
+        });
 
     </script>
