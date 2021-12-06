@@ -4,25 +4,52 @@ var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var session = require('express-session')
-var RedisStore = require('connect-redis')(session)
+// var RedisStore = require('connect-redis')(session)
+var formidable = require('formidable')
+var path = require('path')
 
 var indexRouter = require('./routes/index');
 var adminRouter = require('./routes/admin');
 
 var app = express();
 
+app.use(function(req, res, next){
+
+    if (req.method == 'POST' && req.path != '/admin/login') {
+
+        var form = formidable.IncomingForm({
+            uploadDir: path.join(__dirname, './public/images'),
+            keepExtensions: true
+        })
+    
+        form.parse(req, function(err, fields, file){
+    
+            req.fields = fields
+            req.file = file
+    
+            next()
+    
+        })
+        
+    }
+    else{ 
+        next()
+    }
+
+})
+
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
 app.use(session({
-    store: new RedisStore({
-        host: 'localhost',
-        port: 6379
-    }),
+    // store: new RedisStore({
+    //     host: 'localhost',
+    //     port: 6379
+    // }),
     secret:'password',
     resave: true,
-    saveUninitialized:true
+    saveUninitialized: true
 }))
 
 app.use(logger('dev'));
