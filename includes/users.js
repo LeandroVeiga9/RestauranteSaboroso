@@ -25,13 +25,15 @@ module.exports = {
                 else{
                     
                     if (!results.length > 0) {
+
                         reject('Usuario ou senha incorretos')
                     }
                     else{
 
                         let row = results[0]
 
-                        if (row.password != password) {
+                        if (row.password !== password) {
+
                             reject('Usuario ou senha incorretos')
                         }
                         else{
