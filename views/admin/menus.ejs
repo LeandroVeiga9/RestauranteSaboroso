@@ -146,98 +146,33 @@
     
     <script src="/js/hcode-filereader.js"></script>
     <script src="/js/hcode-formsave.js"></script>
+    <script src="/js/hcode-grid.js"></script>
 
     <script>
 
         new HcodeFileReader('#modal-create [type=file]', '#modal-create img')
         new HcodeFileReader('#modal-update [type=file]', '#modal-update img')
 
-        let formCreate = document.querySelector("#modal-create form")
+        let hcode = new HcodeGrid({
+            deleteUrl:"/admin/menus/${data.id}",
+            deleteMessage:"Deseja realmente excluir o menu ${data.title}?",
+            onUpdateLoad: (form , name, data)=>{
 
-        formCreate.save().then(json=>{
+                let input = form.querySelector(`[name=${name}]`)
 
-            window.location.reload()
+                switch (name) {
 
-        }).catch(err=>{
+                    case 'photo':
+                        form.querySelector('img').src = '/' + data[name]
+                        break;
 
-            console.log(err);
-
-        })
-
-        let formUpdate = document.querySelector('#modal-update form')
-
-        formUpdate.save().then(json=>{
-
-            window.location.reload()
-
-        }).catch(err=>{
-
-            console.log(err);
-
-        })
-
-        let spread1 = [...document.querySelectorAll('.btn-delete')]
-
-        spread1.forEach(btn =>{
-
-            btn.addEventListener('click', e=>{
-
-                let tr = e.composedPath().find(el=>{
-
-                    return(el.tagName.toUpperCase() == 'TR')
-
-                })
-
-                let data = JSON.parse(tr.dataset.row)
-
-                if (confirm(`Deseja realmente excluir o menu ${data.title}?`)) {
-
-                    fetch(`/admin/menus/${data.id}`, {
-                        method: 'DELETE'
-                    }).then(response.json()).then(json => {
-                        window.location.reload()
-                    })
+                    default:
+                        if(input) input.value = data[name]
+                        break;
 
                 }
 
-                
-            }) 
-
+            }
         })
-
-        let spread2 = [...document.querySelectorAll('.btn-update')]
-
-        spread2.forEach(btn => {
-
-            btn.addEventListener('click', e=>{
-
-                let tr = e.composedPath().find(el=>{
-
-                    return(el.tagName.toUpperCase() == 'TR')
-
-                })
-
-                let data = JSON.parse(tr.dataset.row)
-
-                for(let name in data){
-
-                    switch (name) {
-                        case 'photo':
-                            formUpdate.querySelector('img').src = '/'+data[name]
-                            break;
-                    
-                        default:
-                            let input = formUpdate.querySelector(`[name=${name}]`)
-                            if(input) input.value = data[name]
-                            break;
-                    }
-                    
-                }
-
-                $('#modal-update').modal('show')
-
-            })
-            
-        });
 
     </script>
