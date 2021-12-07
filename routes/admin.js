@@ -2,7 +2,11 @@ var express = require('express');
 var users = require('../includes/users')
 var admin = require('../includes/admin')
 var menus = require('../includes/menus')
+var reservations = require('../includes/reservations')
+var moment = require('moment')
 var router = express.Router();
+
+moment.locale("pt-BR")
 
 router.use(function(req, res, next){
     
@@ -130,15 +134,97 @@ router.delete('/menus/:id', function(req, res, next) {
 
 router.get('/reservations', function(req, res, next) {
 
-    res.render("admin/reservations",admin.getParams(req, {
-        date: {}
-    }))
+    reservations.getReservations().then(data => {
+
+        res.render("admin/reservations",admin.getParams(req, {
+            date: {},
+            data: data,
+            moment: moment
+        }))
+
+    })
   
 });
 
+router.post('/reservations', function(req, res, next) {
+    
+    reservations.save(req.fields, req.file).then(results=>{
+
+        res.send(results)
+        
+    }).catch(err=>{
+        res.send(err)
+    })
+
+})
+
+router.delete('/reservations/:id', function(req, res, next) {
+
+    reservations.delete(req.params.id).then(results=>{
+
+        res.send(results)
+
+    }).catch(err=>{
+
+        res.send(err)
+
+    })
+
+})
+
 router.get('/users', function(req, res, next) {
 
-    res.render("admin/users", admin.getParams(req))
+    users.getUsers().then(data =>{
+
+        res.render("admin/users", admin.getParams(req, {
+            data
+        }))
+
+    })
+  
+});
+
+router.post('/users', function(req, res, next) {
+
+    users.save(req.fields).then(results=>{
+
+        res.send(results)
+
+    }).catch(err=>{
+
+        res.send(err)
+
+    })
+  
+});
+
+router.post('/users/password-change', function(req, res, next) {
+
+    users.changePassword(req).then(results=>{
+
+        res.send(results)
+
+    }).catch(err=>{
+
+        res.send({
+            error: err
+        })
+
+    })
+  
+});
+
+router.delete('/users/:id', function(req, res, next) {
+
+    users.delete(req.params.id).then(results=>{
+
+        res.send(results)
+
+    }).catch(err=>{
+
+        res.send(err)
+
+    })
   
 });
 
