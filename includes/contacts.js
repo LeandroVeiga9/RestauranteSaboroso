@@ -36,6 +36,45 @@ module.exports = {
 
         })
 
+    },
+
+    getContacts(){
+
+        return new Promise((resolve, reject) =>{
+
+            conn.query('select * from  tb_contacts order by register desc', (err, results)=>{
+
+                if (err) {
+                    reject(err)
+                }
+        
+                resolve(results)
+        
+            }) 
+
+        })
+
+    },
+    
+    delete(id){
+
+        return new Promise((resolve, reject)=>{
+
+            conn.query('delete from tb_contacts where id = ?',[
+                id
+            ], (err, results) =>{
+
+                if (err) {
+                    reject(err)
+                }
+                else{
+                    resolve(results)
+                }
+
+            })
+
+        })
+
     }
 
 }
